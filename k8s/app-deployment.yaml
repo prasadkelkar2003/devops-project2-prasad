@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app-deployment
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: web-app
+  template:
+    metadata:
+      labels:
+        app: web-app
+    spec:
+      containers:
+      - name: web-app
+        image: mongo:6.0 # Placeholder image until Jenkins updates it via pipeline
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: app-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-app-service
+spec:
+  type: NodePort
+  selector:
+    app: web-app
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30080
